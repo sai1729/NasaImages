@@ -9,9 +9,9 @@ import UIKit
 var count = 0
 class ViewController: UIViewController {
     
+    @IBOutlet weak var textViewExplaination: UITextView!
     @IBOutlet weak var nasaImage: UIImageView!
     @IBOutlet weak var titleView: UILabel!
-    @IBOutlet weak var descriptionView: UITextView!
     override func viewDidLoad() {
         loadDataValues()
         super.viewDidLoad()
@@ -72,7 +72,7 @@ class ViewController: UIViewController {
                 downloadImage(from: URL(string: imageUrl as! String)!)
             }
             self.titleView.text = titleText as? String
-            self.descriptionView.text = descriptionText as? String
+            self.textViewExplaination.text = descriptionText as? String
         } catch {
             print(error)
             if(count == 3){

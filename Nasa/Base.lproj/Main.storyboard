@@ -55,8 +55,8 @@
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="descriptionView" destination="XTP-cl-iQN" id="3cv-Ke-ldC"/>
                         <outlet property="nasaImage" destination="8xT-1j-Jbm" id="7hS-tF-T59"/>
+                        <outlet property="textViewExplaination" destination="XTP-cl-iQN" id="zAa-mi-uhG"/>
                         <outlet property="titleView" destination="1wf-di-1kx" id="Y69-cJ-MMb"/>
                     </connections>
                 </viewController>
