@@ -1,6 +1,6 @@
 # Nasa
-Swift based application
-implemented offline app
+Swift based application.
+implemented offline app.
+Error messages updated when internet not connected.
 # improvement areas 
-1. Network error needs to updated ( Internet Connection)
-2. Description text scroll needs to be updated
+1.First launch taking time
