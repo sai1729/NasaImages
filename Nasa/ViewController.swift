@@ -6,12 +6,12 @@
 //
 //https://api.nasa.gov/planetary/apod?api_key=tjC8dmVZAHAL2oe9rHrQLDTGUOpBskyk3Wokjy9m
 import UIKit
-
+var count = 0
 class ViewController: UIViewController {
     
     @IBOutlet weak var nasaImage: UIImageView!
     @IBOutlet weak var titleView: UILabel!
-    @IBOutlet weak var descriptionView: UILabel!
+    @IBOutlet weak var descriptionView: UITextView!
     override func viewDidLoad() {
         loadDataValues()
         super.viewDidLoad()
@@ -20,24 +20,29 @@ class ViewController: UIViewController {
     
     
     func loadDataValues() {
-        guard let url = URL(string: "https://api.nasa.gov/planetary/apod?api_key=tjC8dmVZAHAL2oe9rHrQLDTGUOpBskyk3Wokjy9m") else {
-            return
+        count = count + 1
+        if(status == false){
+            self.showError(error: "We are not connected to the internet, showing you the last image we have.")
         }
-        let request = URLRequest(url: url)
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            if let data = data {
-                do {
-                    let fileURL = try FileManager.default
-                        .url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
-                        .appendingPathComponent("example.json")
-                    
-                    try data.write(to: fileURL)
-                } catch {
-                    print(error)
-                }
+            guard let url = URL(string: "https://api.nasa.gov/planetary/apod?api_key=tjC8dmVZAHAL2oe9rHrQLDTGUOpBskyk3Wokjy9m") else {
+                return
             }
-        }.resume()
+            let request = URLRequest(url: url)
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                if let data = data {
+                    do {
+                        let fileURL = try FileManager.default
+                            .url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+                            .appendingPathComponent("example.json")
+
+                        try data.write(to: fileURL)
+                    } catch {
+                        print(error)
+                    }
+                }
+            }.resume()
         getValuesfromJson()
+
     }
     
     func getValuesfromJson() {
@@ -53,11 +58,10 @@ class ViewController: UIViewController {
             guard let descriptionText = responseDictionary["explanation"] else{ return}
             
             do{
-                let imageurlValue = imageUrl as! String+"value"
                 let fileURLData = try FileManager.default
                     .url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
-                    .appendingPathComponent((imageurlValue as AnyObject).lastPathComponent, isDirectory: true)
-                
+                    .appendingPathComponent((imageUrl as AnyObject).lastPathComponent, isDirectory: true)
+                        
                 let dataValue = try Data(contentsOf: fileURLData)
                 DispatchQueue.main.async() { [weak self] in
                     self?.nasaImage.image = UIImage(data: dataValue)
@@ -71,6 +75,9 @@ class ViewController: UIViewController {
             self.descriptionView.text = descriptionText as? String
         } catch {
             print(error)
+            if(count == 3){
+                self.loadDataValues()
+            }
         }
     }
     
@@ -101,6 +108,26 @@ class ViewController: UIViewController {
     func getData(from url: URL, completion: @escaping (Data?, URLResponse?, Error?) -> ()) {
         URLSession.shared.dataTask(with: url, completionHandler: completion).resume()
     }
+        
+    func createDirectory() {
+        let paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
+        let documentsDirectory = paths[0]
+        let docURL = URL(string: documentsDirectory)!
+        let dataPath = docURL.appendingPathComponent("MyFolder")
+        if !FileManager.default.fileExists(atPath: dataPath.path) {
+            do {
+                try FileManager.default.createDirectory(atPath: dataPath.path, withIntermediateDirectories: true, attributes: nil)
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
+    }
     
+    func showError(error: String) {
+        DispatchQueue.main.async {
+            let ac = UIAlertController(title: "Loading error", message: error, preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "OK", style: .default))
+            self.present(ac, animated: true)
+        }
+    }
 }
-
