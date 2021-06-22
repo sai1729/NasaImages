@@ -6,7 +6,6 @@
 //
 //https://api.nasa.gov/planetary/apod?api_key=tjC8dmVZAHAL2oe9rHrQLDTGUOpBskyk3Wokjy9m
 import UIKit
-var count = 0
 class ViewController: UIViewController {
     
     @IBOutlet weak var textViewExplaination: UITextView!
@@ -20,7 +19,7 @@ class ViewController: UIViewController {
     
     
     func loadDataValues() {
-        count = count + 1
+        
         if(status == false){
             self.showError(error: "We are not connected to the internet, showing you the last image we have.")
         }
@@ -41,8 +40,26 @@ class ViewController: UIViewController {
                     }
                 }
             }.resume()
-        getValuesfromJson()
-
+        while true{
+            do{
+                let fileURL = try FileManager.default
+                    .url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
+                    .appendingPathComponent("example.json")
+                
+                let data = try Data(contentsOf: fileURL)
+                if !data.isEmpty{
+                    getValuesfromJson()
+                    break
+                }
+            }catch{
+                if status == false{
+                    self.showError(error: "App launching for the first time. Please turn on internet connection and try again..")
+                }else{
+                    self.showError(error: "Fetching Images from server, please wait...")
+                }
+                print(error)
+            }
+        }
     }
     
     func getValuesfromJson() {
@@ -75,9 +92,6 @@ class ViewController: UIViewController {
             self.textViewExplaination.text = descriptionText as? String
         } catch {
             print(error)
-            if(count == 3){
-                self.loadDataValues()
-            }
         }
     }
     
